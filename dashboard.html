@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dashboard · RSVP Yara 70 Anos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Kaushan+Script&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#08040e; --surface:#120820; --card:#1a0d2e;
+  --ink:#f7ecd6; --muted:#9b87b8; --subtle:#2a1845;
+  --pink:#ff2f8e; --pink2:#ff74b6;
+  --gold:#f5c542; --gold2:#ffe6a0; --amber:#ff9d3c;
+  --violet:#a24bff; --green:#3dffa0;
+  --line:rgba(245,197,66,.13);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:"Poppins",system-ui,sans-serif;
+  min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ── top bar ── */
+.topbar{
+  position:sticky;top:0;z-index:20;
+  background:rgba(8,4,14,.88);
+  backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--line);
+  padding:14px 24px;
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+  flex-wrap:wrap;
+}
+.topbar-title{
+  font-family:"Anton",sans-serif;font-size:1.25rem;letter-spacing:.04em;
+  background:linear-gradient(90deg,var(--gold2),var(--gold));
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.topbar-sub{font-size:.78rem;color:var(--muted);margin-top:1px}
+.refresh-btn{
+  display:inline-flex;align-items:center;gap:.4em;
+  border:none;cursor:pointer;font-family:inherit;font-weight:600;font-size:.82rem;
+  padding:9px 18px;border-radius:999px;color:#1a0a12;
+  background:linear-gradient(135deg,var(--gold2),var(--gold));
+  box-shadow:0 4px 18px rgba(245,197,66,.3);
+  transition:transform .15s,opacity .15s;
+}
+.refresh-btn:hover{transform:translateY(-1px)}
+.refresh-btn.loading{opacity:.6;pointer-events:none}
+.spin{display:inline-block;animation:rotate .7s linear infinite}
+@keyframes rotate{to{transform:rotate(360deg)}}
+
+/* ── layout ── */
+.page{max-width:1100px;margin:0 auto;padding:28px 20px 80px}
+
+/* ── status bar ── */
+.status{
+  display:flex;align-items:center;gap:8px;
+  font-size:.78rem;color:var(--muted);margin-bottom:26px;
+}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--green);
+  box-shadow:0 0 8px var(--green);animation:pulse 2.2s ease-in-out infinite}
+.dot.err{background:var(--pink);box-shadow:0 0 8px var(--pink);animation:none}
+@keyframes pulse{0%,100%{opacity:.5}50%{opacity:1}}
+
+/* ── hero numbers ── */
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:28px}
+.kpi{
+  padding:24px 20px;border-radius:18px;
+  background:linear-gradient(160deg,rgba(162,75,255,.10),rgba(255,47,142,.05));
+  border:1px solid var(--line);
+  display:flex;flex-direction:column;gap:6px;
+}
+.kpi-label{font-size:.7rem;letter-spacing:.28em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.kpi-value{
+  font-family:"Anton",sans-serif;font-size:clamp(2.4rem,6vw,3.6rem);line-height:1;
+  background:linear-gradient(180deg,var(--gold2),var(--gold));
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 0 12px rgba(245,197,66,.35));
+}
+.kpi-value.pink{
+  background:linear-gradient(180deg,var(--pink2),var(--pink));
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 0 12px rgba(255,47,142,.35));
+}
+.kpi-value.violet{
+  background:linear-gradient(180deg,#c49bff,var(--violet));
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 0 12px rgba(162,75,255,.35));
+}
+.kpi-sub{font-size:.78rem;color:var(--muted);font-weight:300}
+
+/* ── section titles ── */
+.sec-title{
+  font-family:"Anton",sans-serif;font-size:1.15rem;letter-spacing:.04em;
+  color:var(--gold2);margin-bottom:14px;
+  display:flex;align-items:center;gap:10px;
+}
+.sec-title::after{
+  content:"";flex:1;height:1px;background:var(--line);
+}
+.badge{
+  font-family:"Poppins";font-size:.68rem;font-weight:600;letter-spacing:.06em;
+  padding:3px 10px;border-radius:999px;background:rgba(245,197,66,.12);
+  color:var(--gold);border:1px solid rgba(245,197,66,.25);
+}
+
+/* ── confirmações table ── */
+.conf-grid{display:flex;flex-direction:column;gap:10px;margin-bottom:36px}
+.conf-row{
+  padding:16px 20px;border-radius:14px;
+  background:var(--card);border:1px solid var(--line);
+  display:grid;grid-template-columns:1fr auto;gap:12px;align-items:start;
+}
+.conf-names{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.chip{
+  padding:5px 13px;border-radius:999px;font-size:.8rem;font-weight:500;
+  background:linear-gradient(135deg,rgba(245,197,66,.15),rgba(245,197,66,.06));
+  border:1px solid rgba(245,197,66,.28);color:var(--gold2);
+}
+.conf-meta{font-size:.72rem;color:var(--muted);text-align:right;white-space:nowrap}
+.conf-count{
+  font-family:"Anton",sans-serif;font-size:1.5rem;color:var(--gold2);
+  filter:drop-shadow(0 0 8px rgba(245,197,66,.3));
+}
+.conf-obs{
+  margin-top:8px;font-size:.78rem;color:var(--muted);font-style:italic;
+  padding:6px 10px;border-left:2px solid rgba(255,116,182,.3);
+}
+
+/* ── mensagens ── */
+.msg-grid{display:flex;flex-direction:column;gap:12px;margin-bottom:36px}
+.msg-card{
+  padding:20px 22px;border-radius:16px;
+  background:linear-gradient(160deg,rgba(162,75,255,.09),rgba(255,47,142,.04));
+  border:1px solid rgba(162,75,255,.2);
+  position:relative;overflow:hidden;
+}
+.msg-card::before{
+  content:"\201C";
+  position:absolute;top:-10px;left:14px;
+  font-size:6rem;line-height:1;
+  color:rgba(162,75,255,.12);font-family:Georgia,serif;pointer-events:none;
+}
+.msg-text{
+  font-size:1rem;font-weight:300;color:var(--ink);line-height:1.65;
+  position:relative;z-index:1;margin-bottom:12px;
+}
+.msg-from{
+  display:flex;align-items:center;gap:8px;font-size:.78rem;
+}
+.msg-names-label{
+  display:flex;flex-wrap:wrap;gap:6px;
+}
+.msg-chip{
+  padding:3px 10px;border-radius:999px;font-size:.75rem;font-weight:600;
+  background:rgba(255,47,142,.12);border:1px solid rgba(255,47,142,.25);color:var(--pink2);
+}
+.msg-ts{color:var(--muted);font-size:.72rem;margin-left:auto}
+
+/* ── empty ── */
+.empty{
+  text-align:center;padding:48px 20px;
+  color:var(--muted);font-size:.95rem;
+}
+.empty-icon{font-size:2.4rem;margin-bottom:12px}
+
+/* ── error ── */
+.error-box{
+  padding:20px 24px;border-radius:14px;
+  background:rgba(255,47,142,.07);border:1px solid rgba(255,47,142,.3);
+  color:var(--pink2);font-size:.9rem;margin-bottom:24px;display:none;
+}
+.error-box.show{display:block}
+
+/* ── footer ── */
+.dash-footer{
+  text-align:center;font-size:.75rem;color:var(--muted);
+  margin-top:48px;padding-top:24px;border-top:1px solid var(--line);
+}
+.dash-footer span{
+  font-family:"Kaushan Script",cursive;color:var(--pink2);font-size:.95rem;
+}
+
+/* responsive */
+@media(max-width:600px){
+  .kpis{grid-template-columns:1fr 1fr;}.kpis .kpi:last-child{grid-column:span 2}
+  .conf-row{grid-template-columns:1fr}
+  .conf-meta{text-align:left}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div>
+    <div class="topbar-title">🪩 RSVP · 70 Anos da Yara</div>
+    <div class="topbar-sub">Painel de confirmações · atualiza automaticamente</div>
+  </div>
+  <button class="refresh-btn" id="refreshBtn" onclick="load()">
+    <span id="refreshIcon">↻</span> Atualizar
+  </button>
+</div>
+
+<div class="page">
+
+  <div class="status"><span class="dot" id="dot"></span><span id="statusText">Carregando...</span></div>
+  <div class="error-box" id="errorBox"></div>
+
+  <!-- KPIs -->
+  <div class="kpis">
+    <div class="kpi">
+      <div class="kpi-label">Confirmados</div>
+      <div class="kpi-value" id="kpiTotal">—</div>
+      <div class="kpi-sub">pessoas</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Grupos</div>
+      <div class="kpi-value pink" id="kpiGrupos">—</div>
+      <div class="kpi-sub">convites respondidos</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Mensagens</div>
+      <div class="kpi-value violet" id="kpiMsgs">—</div>
+      <div class="kpi-sub">recados para a Yara</div>
+    </div>
+  </div>
+
+  <!-- Confirmações -->
+  <div class="sec-title">CONFIRMAÇÕES <span class="badge" id="badgeConf">0</span></div>
+  <div class="conf-grid" id="confGrid">
+    <div class="empty"><div class="empty-icon">🎟️</div>Nenhuma confirmação ainda.</div>
+  </div>
+
+  <!-- Mensagens -->
+  <div class="sec-title">RECADOS PARA A YARA <span class="badge" id="badgeMsgs">0</span></div>
+  <div class="msg-grid" id="msgGrid">
+    <div class="empty"><div class="empty-icon">💌</div>Nenhum recado ainda.</div>
+  </div>
+
+  <div class="dash-footer">
+    Atualizado em <span id="lastUpdate">—</span><br>
+    Com carinho para <span>Yara ♥</span>
+  </div>
+</div>
+
+<script>
+// ── Substitua pela sua URL do Apps Script ──────────────────
+var SCRIPT_URL = '__APPS_SCRIPT_URL__';
+// ──────────────────────────────────────────────────────────
+
+var autoRefreshMs = 60000; // atualiza a cada 60 segundos
+var timer;
+
+function setStatus(ok, text){
+  document.getElementById('dot').className = 'dot' + (ok ? '' : ' err');
+  document.getElementById('statusText').textContent = text;
+}
+
+function load(){
+  clearTimeout(timer);
+  var btn  = document.getElementById('refreshBtn');
+  var icon = document.getElementById('refreshIcon');
+  btn.classList.add('loading');
+  icon.className = 'spin';
+  icon.textContent = '↻';
+  setStatus(true, 'Atualizando...');
+  document.getElementById('errorBox').classList.remove('show');
+
+  fetch(SCRIPT_URL + '?action=dashboard&t=' + Date.now())
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      btn.classList.remove('loading');
+      icon.className = '';
+
+      if(d.status !== 'ok'){
+        showError('O script retornou um erro: ' + (d.message||'desconhecido'));
+        return;
+      }
+      render(d);
+      setStatus(true, 'Online · ' + (d.geradoEm || ''));
+      document.getElementById('lastUpdate').textContent = d.geradoEm || '—';
+      timer = setTimeout(load, autoRefreshMs);
+    })
+    .catch(function(e){
+      btn.classList.remove('loading');
+      icon.className = '';
+      showError('Não foi possível conectar ao servidor. Verifique a URL do Apps Script.');
+      setStatus(false, 'Erro de conexão');
+      timer = setTimeout(load, autoRefreshMs);
+    });
+}
+
+function showError(msg){
+  var el = document.getElementById('errorBox');
+  el.textContent = '⚠ ' + msg;
+  el.classList.add('show');
+}
+
+function render(d){
+  // KPIs
+  document.getElementById('kpiTotal').textContent  = d.total   || 0;
+  document.getElementById('kpiGrupos').textContent = d.grupos  || 0;
+  document.getElementById('kpiMsgs').textContent   = (d.mensagens||[]).length;
+  document.getElementById('badgeConf').textContent = d.grupos  || 0;
+  document.getElementById('badgeMsgs').textContent = (d.mensagens||[]).length;
+
+  // Confirmações
+  var cg = document.getElementById('confGrid');
+  if(!d.confirmacoes || d.confirmacoes.length === 0){
+    cg.innerHTML = '<div class="empty"><div class="empty-icon">🎟️</div>Nenhuma confirmação ainda.</div>';
+  } else {
+    cg.innerHTML = d.confirmacoes.map(function(c){
+      var chips = c.confirmados.map(function(n){
+        return '<span class="chip">'+esc(n)+'</span>';
+      }).join('');
+      var obs = c.obs ? '<div class="conf-obs">📌 '+esc(c.obs)+'</div>' : '';
+      return '<div class="conf-row">'
+        + '<div>'
+        + '<div class="conf-names">'+chips+'</div>'
+        + obs
+        + '</div>'
+        + '<div>'
+        + '<div class="conf-count">'+c.qtd+'</div>'
+        + '<div class="conf-meta">'+esc(c.ts)+'</div>'
+        + '</div>'
+        + '</div>';
+    }).join('');
+  }
+
+  // Mensagens
+  var mg = document.getElementById('msgGrid');
+  if(!d.mensagens || d.mensagens.length === 0){
+    mg.innerHTML = '<div class="empty"><div class="empty-icon">💌</div>Nenhum recado ainda.</div>';
+  } else {
+    mg.innerHTML = d.mensagens.map(function(m){
+      var chips = m.nomes.map(function(n){
+        return '<span class="msg-chip">'+esc(n)+'</span>';
+      }).join('');
+      return '<div class="msg-card">'
+        + '<div class="msg-text">'+esc(m.msg)+'</div>'
+        + '<div class="msg-from">'
+        + '<div class="msg-names-label">'+chips+'</div>'
+        + '<div class="msg-ts">'+esc(m.ts)+'</div>'
+        + '</div>'
+        + '</div>';
+    }).join('');
+  }
+}
+
+function esc(s){
+  return String(s||'')
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+load();
+</script>
+</body>
+</html>
